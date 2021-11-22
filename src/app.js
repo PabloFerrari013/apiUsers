@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import { router } from './router'
 
 const app = express()
-const port = 4000
+const port = process.env.PORT || 4000
 
 dotenv.config()
 
