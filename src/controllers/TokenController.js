@@ -3,7 +3,7 @@ import { findUserByEmail, newPass } from '../services/User'
 import validateFields from './validateFields'
 import jwt from 'jsonwebtoken'
 
-export async function recover(req, res) {
+export async function recoverEmail(req, res) {
   let { email } = req.body
   let { status, errors } = validateFields({ email })
 

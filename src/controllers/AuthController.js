@@ -36,13 +36,9 @@ export async function loginUser(req, res) {
           .json({ status: 406, error: [{ password: 'Senha incorreta' }] })
 
       //criando token pra o usuário
-      let token = jwt.sign(
-        { id: user[0].id, name: user[0].name, email },
-        process.env.SECRET,
-        {
-          expiresIn: '30d'
-        }
-      )
+      let token = jwt.sign({ id: user[0].id }, process.env.SECRET, {
+        expiresIn: '30d'
+      })
       return res.json({ status: 200, token })
     }
   } catch (error) {

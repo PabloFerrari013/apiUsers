@@ -38,7 +38,7 @@ export async function findUserByEmail(email) {
   }
 }
 
-export async function findAllUser() {
+export async function findAllDBUsers() {
   try {
     //Listando todos os usuários do db
     let users = await database.select(['id', 'name', 'email']).table('users')
@@ -50,7 +50,7 @@ export async function findAllUser() {
   }
 }
 
-export async function findOneUser(id) {
+export async function findOneUserById(id) {
   try {
     //procurando usuário a partir do id no db
     let user = await database
@@ -66,7 +66,7 @@ export async function findOneUser(id) {
   }
 }
 
-export async function updateUser(name, email, password) {
+export async function editUser(name, email, password) {
   try {
     //procurando por usuário a partir do e-mail no db
     let { status, user } = await findUserByEmail(email)
@@ -98,7 +98,7 @@ export async function updateUser(name, email, password) {
   }
 }
 
-export async function removeUser(id) {
+export async function deleteUser(id) {
   try {
     //removendo usuário
     await database.where({ id: id }).delete().table('users')

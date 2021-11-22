@@ -1,14 +1,15 @@
 import {
   newUser,
   findUserByEmail,
-  updateUser,
-  findAllUser,
-  findOneUser,
-  removeUser
+  editUser,
+  findAllDBUsers,
+  findOneUserById,
+  deleteUser
 } from '../services/User'
 import validateFields from './validateFields'
+import jwt from 'jsonwebtoken'
 
-export async function create(req, res) {
+export async function createUser(req, res) {
   let { name, email, password } = req.body
   let { status, errors } = validateFields(name, email, password)
 
@@ -53,10 +54,47 @@ export async function create(req, res) {
   }
 }
 
-export async function findAll(req, res) {
+export async function userInfos(req, res) {
+  let { token } = req.headers
+  let { status, errors } = validateFields(name, email, password)
+
+  //verificando se algum dado foi enviado de maneira incorreta
+  if (!status) return res.status(406).json({ status: 406, error: errors })
+
+  //decodificando token
+  let decode = jwt.decode(token, process.env.SECRET)
+
+  //verificando se o token existe
+  if (decode == null)
+    return res
+      .status(404)
+      .json({ status: 404, error: [{ token: 'Token inválido' }] })
+
+  try {
+    //procurando o usuário no db
+    let { status, user } = await findOneUserById(decode.id)
+
+    //verificando se houve algum problema na busca pelo usuário
+    if (!status) {
+      return res
+        .status(500)
+        .json({ status: 500, error: [{ internalError: 'Erro interno' }] })
+    }
+
+    return res.json({ user: user[0] })
+  } catch (error) {
+    console.log(error.message)
+
+    return res
+      .status(500)
+      .json({ status: 500, error: [{ internalError: 'Erro interno' }] })
+  }
+}
+
+export async function findAllUsers(req, res) {
   try {
     //listando todos os usuários
-    let { status, users } = await findAllUser()
+    let { status, users } = await findAllDBUsers()
 
     //verificando se houve algum erro na busca dos usuários
     if (!status)
@@ -74,42 +112,7 @@ export async function findAll(req, res) {
   }
 }
 
-export async function findOne(req, res) {
-  let { id } = req.params
-  let { status, errors } = validateFields({ id })
-
-  //verificando se o id foi enviado de maneira incorreta
-  if (!status) {
-    return res.status(406).json({ status: 406, error: errors })
-  } else {
-    try {
-      //procurando por usuário no banco de dados
-      let { status, user } = await findOneUser(id)
-
-      //verificando se houve algum erro na busca pelo usuário
-      if (!status)
-        return res
-          .status(500)
-          .json({ status: 500, error: [{ internalError: 'Erro interno' }] })
-
-      //verificando se o usuário foi encontrado no db
-      if (user.length == 0)
-        return res
-          .status(404)
-          .json({ status: 404, error: [{ user: 'usuário não encontrado' }] })
-
-      return res.json({ status: 200, user })
-    } catch (error) {
-      console.log(error.message)
-
-      return res
-        .status(500)
-        .json({ status: 500, error: [{ internalError: 'Erro interno' }] })
-    }
-  }
-}
-
-export async function update(req, res) {
+export async function updateUser(req, res) {
   let { name, email, password } = req.body
   let { status, errors } = validateFields({ name, email, password })
 
@@ -118,7 +121,7 @@ export async function update(req, res) {
 
   try {
     //editando usuário
-    let { status, error } = await updateUser(name, email, password)
+    let { status, error } = await editUser(name, email, password)
 
     //veririficando se houve algum erro na edição do osuário
     if (status != 200) return res.status(status).json(status, error)
@@ -133,7 +136,7 @@ export async function update(req, res) {
   }
 }
 
-export async function remove(req, res) {
+export async function removeUser(req, res) {
   let { id } = req.params
   let { status, errors } = validateFields({ id })
 
@@ -142,7 +145,7 @@ export async function remove(req, res) {
 
   try {
     // removendo usuário
-    let { status } = await removeUser(id)
+    let { status } = await deleteUser(id)
 
     //verificando se houve algum erro na remoção do usuário
     if (!status)
