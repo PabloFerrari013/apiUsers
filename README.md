@@ -24,7 +24,7 @@ $ yarn
 # Start the project
 yarn dev
 ```
-The app is available in your browser at http://localhost:4000.\
+The app is available in your browser at http://localhost:4000 \
 Rememberthat you will need to create a database with the crud name on your MySQl, in addition to creating your appropriate tables: users and tokens.\
 Also create a. ENV with the variables:
 ```txt
